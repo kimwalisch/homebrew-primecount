@@ -8,11 +8,12 @@ class Primecount < Formula
   depends_on "cmake" => :build
   depends_on "llvm" => :build
   depends_on "libomp"
+  depends_on "primesieve"
 
   def install
     mkdir "build" do
       # Build primecount using non-default LLVM compiler with libomp (OpenMP)
-      system "cmake", "..", "-DCMAKE_CXX_COMPILER=" + Formula["llvm"].bin + "/clang++", "-DBUILD_SHARED_LIBS=ON", *std_cmake_args
+      system "cmake", "..", "-DCMAKE_CXX_COMPILER=" + Formula["llvm"].bin + "/clang++", "-DBUILD_SHARED_LIBS=ON", "-DBUILD_LIBPRIMESIEVE=OFF", *std_cmake_args
       system "make", "install"
     end
   end
