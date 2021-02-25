@@ -10,18 +10,18 @@ class Primecount < Formula
   depends_on "libomp"
   depends_on "primesieve"
 
-  # In 2021 integer division is slow on most CPUs,
-  # hence we use libdivide instead.
-  use_libdivide = "ON"
-
-  on_macos do
-    if Hardware::CPU.arm?
-      # Apple Silicon CPUs have very fast integer division
-      use_libdivide = "OFF"
-    end
-  end
-  
   def install
+    # In 2021 integer division is slow on most CPUs,
+    # hence by default we use libdivide instead.
+    use_libdivide = "ON"
+    
+    on_macos do
+      if Hardware::CPU.arm?
+        # Apple Silicon CPUs have very fast integer division
+        use_libdivide = "OFF"
+      end
+    end
+    
     mkdir "build" do
       # 1) Build primecount using non-default LLVM compiler with libomp (OpenMP)
       # 2) Homebrew does not allow compiling with -O2 or -O3, instead homebrew requires using -Os
