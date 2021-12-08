@@ -28,7 +28,12 @@ class Primecount < Formula
       # unless /opt/homebrew/Cellar/primecount/7.0/lib is added to DYLD_LIBRARY_PATH.
       # See issue: https://github.com/kimwalisch/primecount/issues/48
       # In order to workaround this issue we link libprimecount statically.
-      system "sed -i '' 's/primecount PRIVATE libprimecount/primecount PRIVATE libprimecount-static/g' ../CMakeLists.txt"
+      on_macos do
+        system "sed -i '' 's/primecount PRIVATE libprimecount/primecount PRIVATE libprimecount-static/g' ../CMakeLists.txt"
+      end
+      on_linux do
+        system "sed -i 's/primecount PRIVATE libprimecount/primecount PRIVATE libprimecount-static/g' ../CMakeLists.txt"
+      end
 
       # 1) Build primecount using non-default LLVM compiler with libomp (OpenMP)
       # 2) Homebrew does not allow compiling with -O2 or -O3, instead homebrew requires using -Os
