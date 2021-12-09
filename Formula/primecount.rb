@@ -35,9 +35,8 @@ class Primecount < Formula
         system "sed -i 's/primecount PRIVATE libprimecount/primecount PRIVATE libprimecount-static/g' ../CMakeLists.txt"
       end
 
-      # 1) Build primecount using non-default LLVM compiler with libomp (OpenMP)
-      # 2) Homebrew does not allow compiling with -O2 or -O3, instead homebrew requires using -Os
-      system "cmake", "..", "-DCMAKE_CXX_COMPILER=" + Formula["llvm"].bin + "/clang++", "-DCMAKE_CXX_FLAGS=-Os", "-DBUILD_SHARED_LIBS=ON", "-DBUILD_LIBPRIMESIEVE=OFF", "-DWITH_LIBDIVIDE=#{use_libdivide}", *std_cmake_args
+      # Build primecount using non-default LLVM compiler with libomp (OpenMP)
+      system "cmake", "..", "-DCMAKE_CXX_COMPILER=" + Formula["llvm"].bin + "/clang++", "-DBUILD_SHARED_LIBS=ON", "-DBUILD_LIBPRIMESIEVE=OFF", "-DWITH_LIBDIVIDE=#{use_libdivide}", *std_cmake_args
       system "make", "install"
     end
   end
