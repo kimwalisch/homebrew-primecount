@@ -14,11 +14,13 @@ class Primecount < Formula
     # In 2021 integer division is slow on most CPUs,
     # hence by default we use libdivide instead.
     use_libdivide = "ON"
+    use_div32 = "ON"
     
     on_macos do
       if Hardware::CPU.arm?
         # Apple Silicon CPUs have very fast integer division
         use_libdivide = "OFF"
+        use_div32 = "OFF"
       end
     end
     
@@ -36,7 +38,7 @@ class Primecount < Formula
       end
 
       # Build primecount using non-default LLVM compiler with libomp (OpenMP)
-      system "cmake", "..", "-DCMAKE_CXX_COMPILER=" + Formula["llvm"].bin + "/clang++", "-DBUILD_SHARED_LIBS=ON", "-DBUILD_LIBPRIMESIEVE=OFF", "-DWITH_LIBDIVIDE=#{use_libdivide}", *std_cmake_args
+      system "cmake", "..", "-DCMAKE_CXX_COMPILER=" + Formula["llvm"].bin + "/clang++", "-DBUILD_SHARED_LIBS=ON", "-DBUILD_LIBPRIMESIEVE=OFF", "-DWITH_LIBDIVIDE=#{use_libdivide}", "-DWITH_DIV32=#{use_div32}", *std_cmake_args
       system "make", "install"
     end
   end
