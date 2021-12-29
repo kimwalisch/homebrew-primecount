@@ -1,12 +1,14 @@
 class Primecount < Formula
   desc "Fast prime counting function program and C/C++ library"
   homepage "https://github.com/kimwalisch/primecount"
-  url "https://github.com/kimwalisch/primecount/archive/v7.2.tar.gz"
-  sha256 "54c1eec33e665a780002dda20cf39ba0cefa8e846fdeda44734fb2265cba9257"
+  # This is a beta version of primecount-7.3. primecount-7.3 can now be built using
+  # the default AppleClang C/C++ compiler. This significantly speeds up the installation
+  # as homebrew does not need to download + install LLVM/Clang anymore.
+  url "https://github.com/kimwalisch/primecount/archive/6eaddf2edde8ed3bf7d3ee2b0dc08fd38bf52334.tar.gz"
+  sha256 "2d3939f746ecf7b8e54f3b956beb9791c5f9b9de78ac295c11f103684bdfcd9e"
   license "BSD-2-Clause"
 
   depends_on "cmake" => :build
-  depends_on "llvm" => :build
   depends_on "libomp"
   depends_on "primesieve"
 
@@ -15,7 +17,7 @@ class Primecount < Formula
     # hence by default we use libdivide instead.
     use_libdivide = "ON"
     use_div32 = "ON"
-    
+
     on_macos do
       if Hardware::CPU.arm?
         # Apple Silicon CPUs have very fast integer division
@@ -23,24 +25,10 @@ class Primecount < Formula
         use_div32 = "OFF"
       end
     end
-    
-    mkdir "build" do
-      # Because homebrew-primecount is currently a tab and not a regular homebrew package
-      # the shared libprimecount.7.dylib won't be found when running the primecount binary
-      # unless /opt/homebrew/Cellar/primecount/7.0/lib is added to DYLD_LIBRARY_PATH.
-      # See issue: https://github.com/kimwalisch/primecount/issues/48
-      # In order to workaround this issue we link libprimecount statically.
-      on_macos do
-        system "sed -i '' 's/primecount PRIVATE libprimecount/primecount PRIVATE libprimecount-static/g' ../CMakeLists.txt"
-      end
-      on_linux do
-        system "sed -i 's/primecount PRIVATE libprimecount/primecount PRIVATE libprimecount-static/g' ../CMakeLists.txt"
-      end
 
-      # Build primecount using non-default LLVM compiler with libomp (OpenMP)
-      system "cmake", "..", "-DCMAKE_CXX_COMPILER=" + Formula["llvm"].bin + "/clang++", "-DBUILD_SHARED_LIBS=ON", "-DBUILD_LIBPRIMESIEVE=OFF", "-DWITH_LIBDIVIDE=#{use_libdivide}", "-DWITH_DIV32=#{use_div32}", *std_cmake_args
-      system "make", "install"
-    end
+    system "cmake", "-S", ".", "-B", "build", "-DBUILD_SHARED_LIBS=ON", "-DBUILD_LIBPRIMESIEVE=OFF", "-DWITH_LIBDIVIDE=#{use_libdivide}", "-DWITH_DIV32=#{use_div32}", "-DCMAKE_INSTALL_RPATH=#{rpath}", *std_cmake_args
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
   end
 
   test do
